@@ -18,8 +18,9 @@
     
 <tr><td bgcolor="#aa55cc"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
 <td width="100%"><table width="100%" summary="list"><tr><td width="25%" valign=top><a href="os.html">os</a><br>
+</td><td width="25%" valign=top><a href="re.html">re</a><br>
 </td><td width="25%" valign=top><a href="sys.html">sys</a><br>
-</td><td width="25%" valign=top></td><td width="25%" valign=top></td></tr></table></td></tr></table><p>
+</td><td width="25%" valign=top></td></tr></table></td></tr></table><p>
 <table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
 <tr bgcolor="#ee77aa">
 <td colspan=3 valign=bottom>&nbsp;<br>
@@ -60,15 +61,21 @@ Check&nbsp;file&nbsp;or&nbsp;files&nbsp;for&nbsp;stylistic&nbsp;issues.<br>&nbsp
 Static methods defined here:<br>
 <dl><dt><a name="CodeAnalyzer-check"><strong>check</strong></a>(func, i, line, path)</dt><dd><tt>Check&nbsp;given&nbsp;line&nbsp;for&nbsp;each&nbsp;issue,&nbsp;print&nbsp;found&nbsp;issues.</tt></dd></dl>
 
-<dl><dt><a name="CodeAnalyzer-cond_comment"><strong>cond_comment</strong></a>(line)</dt><dd><tt>Condition&nbsp;for&nbsp;in-line&nbsp;comment&nbsp;without&nbsp;double&nbsp;whitespace</tt></dd></dl>
+<dl><dt><a name="CodeAnalyzer-cond_class"><strong>cond_class</strong></a>(line)</dt><dd><tt>Condition&nbsp;for&nbsp;class&nbsp;name&nbsp;not&nbsp;written&nbsp;in&nbsp;camel&nbsp;case.</tt></dd></dl>
+
+<dl><dt><a name="CodeAnalyzer-cond_comment"><strong>cond_comment</strong></a>(line)</dt><dd><tt>Condition&nbsp;for&nbsp;in-line&nbsp;comment&nbsp;without&nbsp;double&nbsp;whitespace.</tt></dd></dl>
+
+<dl><dt><a name="CodeAnalyzer-cond_constr"><strong>cond_constr</strong></a>(line)</dt><dd><tt>Condition&nbsp;for&nbsp;more&nbsp;than&nbsp;one&nbsp;space&nbsp;before&nbsp;function/class&nbsp;name.</tt></dd></dl>
+
+<dl><dt><a name="CodeAnalyzer-cond_function"><strong>cond_function</strong></a>(line)</dt><dd><tt>Condition&nbsp;for&nbsp;function&nbsp;name&nbsp;not&nbsp;written&nbsp;in&nbsp;snake&nbsp;case.</tt></dd></dl>
 
 <dl><dt><a name="CodeAnalyzer-cond_indent"><strong>cond_indent</strong></a>(line, val=4)</dt><dd><tt>Condition&nbsp;for&nbsp;wrong&nbsp;indentation.</tt></dd></dl>
 
 <dl><dt><a name="CodeAnalyzer-cond_length"><strong>cond_length</strong></a>(line, lim=79)</dt><dd><tt>Condition&nbsp;for&nbsp;line&nbsp;too&nbsp;long.</tt></dd></dl>
 
-<dl><dt><a name="CodeAnalyzer-cond_semicolon"><strong>cond_semicolon</strong></a>(line)</dt><dd><tt>Condition&nbsp;for&nbsp;unnecessary&nbsp;semicolon&nbsp;at&nbsp;the&nbsp;end&nbsp;of&nbsp;line</tt></dd></dl>
+<dl><dt><a name="CodeAnalyzer-cond_semicolon"><strong>cond_semicolon</strong></a>(line)</dt><dd><tt>Condition&nbsp;for&nbsp;unnecessary&nbsp;semicolon&nbsp;at&nbsp;the&nbsp;end&nbsp;of&nbsp;line.</tt></dd></dl>
 
-<dl><dt><a name="CodeAnalyzer-cond_todo"><strong>cond_todo</strong></a>(line)</dt><dd><tt>Condition&nbsp;for&nbsp;todo&nbsp;found&nbsp;in&nbsp;comment</tt></dd></dl>
+<dl><dt><a name="CodeAnalyzer-cond_todo"><strong>cond_todo</strong></a>(line)</dt><dd><tt>Condition&nbsp;for&nbsp;to&nbsp;do&nbsp;found&nbsp;in&nbsp;comment.</tt></dd></dl>
 
 <hr>
 Data descriptors defined here:<br>

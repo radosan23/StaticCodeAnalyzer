@@ -1,4 +1,5 @@
 import os
+import re
 import sys
 
 
@@ -19,7 +20,13 @@ class CodeAnalyzer:
                        'todo': {'cond': self.cond_todo, 'code': 'S005',
                                 'msg': 'TODO found'},
                        'blank': {'cond': self.cond_blank, 'code': 'S006',
-                                 'msg': 'More than two blank lines preceding a code line'}}
+                                 'msg': 'More than two blank lines preceding a code line'},
+                       'construction': {'cond': self.cond_constr, 'code': 'S007',
+                                        'msg': 'Too many spaces after def/class'},
+                       'class': {'cond': self.cond_class, 'code': 'S008',
+                                 'msg': 'Class name should be written in CamelCase'},
+                       'function': {'cond': self.cond_function, 'code': 'S009',
+                                    'msg': 'Function name should be written in snake_case'}}
 
     def get_lines(self, path):
         """Read file lines into class field."""
@@ -39,17 +46,17 @@ class CodeAnalyzer:
 
     @staticmethod
     def cond_semicolon(line):
-        """Condition for unnecessary semicolon at the end of line"""
+        """Condition for unnecessary semicolon at the end of line."""
         return line.split('#')[0].strip().endswith(';')
 
     @staticmethod
     def cond_comment(line):
-        """Condition for in-line comment without double whitespace"""
+        """Condition for in-line comment without double whitespace."""
         return '#' in line[1:] and not line.split('#')[0].endswith('  ')
 
     @staticmethod
     def cond_todo(line):
-        """Condition for to do found in comment """
+        """Condition for to do found in comment."""
         return '#' in line and 'todo' in line.split('#')[1].lower()
 
     def cond_blank(self, line):
@@ -57,6 +64,21 @@ class CodeAnalyzer:
         i = self.lines.index(line)
         return line.strip() and i > 2 and self.lines[i - 1] == '\n' and self.lines[i - 2] == '\n' \
             and self.lines[i - 3] == '\n'
+
+    @staticmethod
+    def cond_constr(line):
+        """Condition for more than one space before function/class name."""
+        return re.match(r'\s*(def|class) {2,}', line) is not None
+
+    @staticmethod
+    def cond_class(line):
+        """Condition for class name not written in camel case."""
+        return line.strip().startswith('class ') and re.match(r'class +[A-Z][a-zA-Z]*[(:]', line.strip()) is None
+
+    @staticmethod
+    def cond_function(line):
+        """Condition for function name not written in snake case."""
+        return line.strip().startswith('def ') and re.match(r'def +[_a-z]+\(', line.strip()) is None
 
     @staticmethod
     def check(func, i, line, path):
