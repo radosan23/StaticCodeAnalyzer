@@ -1,3 +1,4 @@
+import ast
 import os
 import re
 import sys
@@ -9,6 +10,7 @@ class CodeAnalyzer:
         """Initialize object with path. Contains dictionary of checks."""
         self.path = path
         self.lines = None
+        self.issues = []
         self.checks = {'length': {'cond': self.cond_length, 'code': 'S001',
                                   'msg': 'Too long'},
                        'indent': {'cond': self.cond_indent, 'code': 'S002',
@@ -27,6 +29,12 @@ class CodeAnalyzer:
                                  'msg': 'Class name should be written in CamelCase'},
                        'function': {'cond': self.cond_function, 'code': 'S009',
                                     'msg': 'Function name should be written in snake_case'}}
+        self.ast_checks = {'arg_name': {'cond': self.check_arg_name, 'code': 'S010',
+                                        'msg': 'Argument name "{}" should be written in snake_case'},
+                           'var_name': {'cond': self.check_var_name, 'code': 'S011',
+                                        'msg': 'Variable "{}" should be written in snake_case'},
+                           'mut_arg': {'cond': self.check_mut_arg, 'code': 'S012',
+                                       'msg': 'The default argument value is mutable'}}
 
     def get_lines(self, path):
         """Read file lines into class field."""
@@ -73,25 +81,60 @@ class CodeAnalyzer:
     @staticmethod
     def cond_class(line):
         """Condition for class name not written in camel case."""
-        return line.strip().startswith('class ') and re.match(r'class +[A-Z][a-zA-Z]*[(:]', line.strip()) is None
+        return line.strip().startswith('class ') and re.match(r'class +[A-Z][a-zA-Z0-9]*[(:]', line.strip()) is None
 
     @staticmethod
     def cond_function(line):
         """Condition for function name not written in snake case."""
-        return line.strip().startswith('def ') and re.match(r'def +[_a-z]+\(', line.strip()) is None
+        return line.strip().startswith('def ') and re.match(r'def +[_a-z0-9]+\(', line.strip()) is None
 
-    @staticmethod
-    def check(func, i, line, path):
+    def check(self, func, i, line, path):
         """Check given line for each issue, print found issues."""
         if func['cond'](line):
-            print(f"{path}: Line {i}: {func['code']} {func['msg']}")
+            self.issues.append({'path': path, 'line': i, 'code': func['code'], 'msg': func['msg']})
+
+    def check_arg_name(self, tree, path, code, msg):
+        """Condition for argument name not written in snake case."""
+        for node in ast.walk(tree):
+            if isinstance(node, ast.FunctionDef):
+                for arg in node.args.args:
+                    if re.match(r'[_a-z0-9]+$', arg.arg) is None:
+                        self.issues.append({'path': path, 'line': node.lineno, 'code': code,
+                                            'msg': msg.format(arg.arg)})
+
+    def check_var_name(self, tree, path, code, msg):
+        """Condition for variable name not written in snake case."""
+        for f_node in ast.walk(tree):
+            if isinstance(f_node, ast.FunctionDef):
+                for node in f_node.body:
+                    if isinstance(node, ast.Assign):
+                        for target in node.targets:
+                            if isinstance(target, ast.Name) and re.match(r'[_a-z0-9]+$', target.id) is None:
+                                self.issues.append({'path': path, 'line': node.lineno, 'code': code,
+                                                    'msg': msg.format(target.id)})
+
+    def check_mut_arg(self, tree, path, code, msg):
+        """Condition for default argument being mutable."""
+        for node in ast.walk(tree):
+            if isinstance(node, ast.FunctionDef):
+                for arg in node.args.defaults:
+                    if type(arg) in (ast.List, ast.Set, ast.Dict):
+                        self.issues.append({'path': path, 'line': node.lineno, 'code': code, 'msg': msg})
 
     def check_file(self, path):
-        """Check every line of file."""
+        """Check every line of file and nodes of parse tree."""
+        self.issues.clear()
         self.get_lines(path)
         for i, line in enumerate(self.lines, start=1):
             for check in self.checks.values():
                 self.check(check, i, line, path)
+        with open(path, 'rt') as f:
+            tree = ast.parse(f.read())
+        for check in self.ast_checks.values():
+            check['cond'](tree, path, check['code'], check['msg'])
+        self.issues.sort(key=lambda x: x['code'])
+        self.issues.sort(key=lambda x: x['line'])
+        print(*[f"{x['path']}: Line {x['line']}: {x['code']} {x['msg']}" for x in self.issues], sep='\n')
 
     def analyze(self):
         """Check if given path is directory or file, traverse directory for .py files."""
